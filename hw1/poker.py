@@ -77,17 +77,17 @@ def card_ranks(hand):
 
 def flush(hand):
     """Возвращает True, если все карты одной масти"""
-    result = False
     hand_suits = set([card[-1] for card in hand])
-    if len(hand_suits) == 1:
-        result = True
+    result = len(hand_suits) == 1
     return result
 
 
 def straight(ranks):
     """Возвращает True, если отсортированные ранги формируют последовательность 5ти,
     где у 5ти карт ранги идут по порядку (стрит)"""
-    return
+    ranks_mapped = [ranks_dict[rank] for rank in ranks]
+    result = ranks_mapped.pop(0) - ranks_mapped.pop() == len(ranks_mapped)
+    return result
 
 
 def kind(n, ranks):
