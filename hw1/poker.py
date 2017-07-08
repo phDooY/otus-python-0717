@@ -109,7 +109,18 @@ def kind(n, ranks):
 def two_pair(ranks):
     """Если есть две пары, то возврщает два соответствующих ранга,
     иначе возвращает None"""
-    return
+    ranks_counts = collections.Counter(ranks)
+
+    # unique ranks iterator
+    ranks_iterator = iter(set(ranks))
+
+    pairs = []
+    for rank in ranks_iterator:
+        if ranks_counts.get(rank) == 2:
+            pairs.append(rank)
+
+    result = tuple(pairs[:2]) if len(pairs) >= 2 else None
+    return result
 
 
 def best_hand(hand):
