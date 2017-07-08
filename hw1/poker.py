@@ -27,6 +27,7 @@
 # -----------------
 
 import itertools
+import collections
 
 # Cards ranking conversion table
 ranks_dict = {
@@ -93,7 +94,16 @@ def straight(ranks):
 def kind(n, ranks):
     """Возвращает первый ранг, который n раз встречается в данной руке.
     Возвращает None, если ничего не найдено"""
-    return
+    ranks_counts = collections.Counter(ranks)
+
+    # unique ranks iterator
+    ranks_iterator = iter(set(ranks))
+
+    for rank in ranks_iterator:
+        if ranks_counts.get(rank) == n:
+            return rank
+
+    return None
 
 
 def two_pair(ranks):
