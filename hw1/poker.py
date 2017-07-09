@@ -127,10 +127,10 @@ def two_pair(ranks):
 
 def best_hand(hand):
     """Из "руки" в 7 карт возвращает лучшую "руку" в 5 карт """
-    hands_iterator = itertools.combinations(hand, 5)
-
     current_best_hand = tuple()
     current_best_hand_rank = tuple()
+
+    hands_iterator = itertools.combinations(hand, 5)
     for hand_iteration in hands_iterator:
         hand_iteration_rank = hand_rank(hand_iteration)
         if not current_best_hand:
@@ -145,8 +145,60 @@ def best_hand(hand):
 
 
 def best_wild_hand(hand):
-    """best_hand но с джокерами"""
-    return
+    """best_hand но с джокерами
+    function first built due to dummy intuitive way by 
+    finding all possible permutations of joker cards
+    """
+    def silent_remove(some_list, val):
+        try:
+            some_list.remove(val)
+        except ValueError:
+            pass
+
+    current_best_hand = tuple()
+    current_best_hand_rank = tuple()
+
+    all_hands = []
+    # add all black jokers combos
+    if '?B' in hand:
+        joker_combinations = [''.join(i) for i in itertools.product(ranks_dict.keys(), 'CS')]
+        silent_remove(hand, '?B')
+        for card in hand:
+            if card != '?R':
+                silent_remove(joker_combinations, card)
+        for combination in joker_combinations:
+            all_hands.append(hand + [combination])
+
+    # add all red jokers combos
+    if '?R' in hand:
+        all_hands_temp = []
+        for hand_temp in all_hands:
+            joker_combinations = [''.join(i) for i
+                                  in itertools.product(ranks_dict.keys(), 'HD')]
+            silent_remove(hand_temp, '?R')
+            for card in hand_temp:
+                silent_remove(joker_combinations, card)
+            for combination in joker_combinations:
+                all_hands_temp.append(hand_temp + [combination])
+        all_hands = all_hands_temp
+
+    # in case there are no jokers in hand
+    if not all_hands:
+        all_hands.append(hand)
+
+    for hand_temp in all_hands:
+        hands_iterator = itertools.combinations(hand_temp, 5)
+        for hand_iteration in hands_iterator:
+            hand_iteration_rank = hand_rank(hand_iteration)
+            if not current_best_hand:
+                current_best_hand = hand_iteration
+                current_best_hand_rank = hand_iteration_rank
+            else:
+                if hand_iteration_rank > current_best_hand_rank:
+                    current_best_hand = hand_iteration
+                    current_best_hand_rank = hand_iteration_rank
+
+    return list(current_best_hand)
 
 
 def test_best_hand():
