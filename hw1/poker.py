@@ -71,8 +71,10 @@ def hand_rank(hand):
 
 def card_ranks(hand):
     """Возвращает список рангов, отсортированный от большего к меньшему"""
-    hand_ranks = [card[0] for card in hand]
-    result = sorted(hand_ranks, key=lambda x: ranks_dict[x], reverse=True)
+    hand_ranks = [ranks_dict[card[0]] for card in hand]
+    result = tuple(
+        sorted(hand_ranks, reverse=True)
+    )
     return result
 
 
@@ -86,8 +88,8 @@ def flush(hand):
 def straight(ranks):
     """Возвращает True, если отсортированные ранги формируют последовательность 5ти,
     где у 5ти карт ранги идут по порядку (стрит)"""
-    ranks_mapped = [ranks_dict[rank] for rank in ranks]
-    result = ranks_mapped.pop(0) - ranks_mapped.pop() == len(ranks_mapped)
+    ranks_mapped = ranks
+    result = ranks_mapped[0] - ranks_mapped[-1] == len(ranks_mapped) - 1
     return result
 
 
@@ -125,7 +127,21 @@ def two_pair(ranks):
 
 def best_hand(hand):
     """Из "руки" в 7 карт возвращает лучшую "руку" в 5 карт """
-    return
+    hands_iterator = itertools.combinations(hand, 5)
+
+    current_best_hand = tuple()
+    current_best_hand_rank = tuple()
+    for hand_iteration in hands_iterator:
+        hand_iteration_rank = hand_rank(hand_iteration)
+        if not current_best_hand:
+            current_best_hand = hand_iteration
+            current_best_hand_rank = hand_iteration_rank
+        else:
+            if hand_iteration_rank > current_best_hand_rank:
+                current_best_hand = hand_iteration
+                current_best_hand_rank = hand_iteration_rank
+
+    return list(current_best_hand)
 
 
 def best_wild_hand(hand):
@@ -141,7 +157,7 @@ def test_best_hand():
             == ['8C', '8S', 'TC', 'TD', 'TH'])
     assert (sorted(best_hand("JD TC TH 7C 7D 7S 7H".split()))
             == ['7C', '7D', '7H', '7S', 'JD'])
-    return 'test_best_hand passes'
+    print 'test_best_hand passes'
     print 'OK'
 
 
@@ -153,6 +169,7 @@ def test_best_wild_hand():
             == ['7C', 'TC', 'TD', 'TH', 'TS'])
     assert (sorted(best_wild_hand("JD TC TH 7C 7D 7S 7H".split()))
             == ['7C', '7D', '7H', '7S', 'JD'])
+    print 'test_best_wild_hand passes'
     print 'OK'
 
 if __name__ == '__main__':
