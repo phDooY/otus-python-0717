@@ -23,9 +23,11 @@ def decorator():
     return
 
 
-def countcalls():
+def countcalls(func):
     '''Decorator that counts calls made to the function decorated.'''
-    return
+    def wrapper(*args):
+        func(*args)
+    return wrapper
 
 
 def memo():
@@ -36,12 +38,21 @@ def memo():
     return
 
 
-def n_ary():
+def n_ary(func):
     '''
     Given binary function f(x, y), return an n_ary function such
     that f(x, y, z) = f(x, f(y,z)), etc. Also allow f(x) = x.
     '''
-    return
+    def wrapper(*args):
+        if len(args) > 2:
+            a = args[0]
+            b = args[1:]
+            return func(a, func(*b))
+        elif len(args) <= 1:
+            return args
+        else:
+            return func(*args)
+    return wrapper
 
 
 def trace():
@@ -67,23 +78,23 @@ def trace():
     return
 
 
-@memo
-@countcalls
+#@memo
+#@countcalls
 @n_ary
 def foo(a, b):
     return a + b
 
 
-@countcalls
-@memo
+#@countcalls
+#@memo
 @n_ary
 def bar(a, b):
     return a * b
 
 
-@countcalls
-@trace("####")
-@memo
+#@countcalls
+#@trace("####")
+#@memo
 def fib(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
