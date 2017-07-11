@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from functools import update_wrapper
+from functools import update_wrapper, wraps
 
 
 def disable():
@@ -15,18 +15,24 @@ def disable():
     return
 
 
-def decorator():
+def decorator(func):
     '''
     Decorate a decorator so that it inherits the docstrings
     and stuff from the function it's decorating.
     '''
-    return
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
 
 def countcalls(func):
     '''Decorator that counts calls made to the function decorated.'''
     def wrapper(*args):
-        func(*args)
+        wrapper.calls += 1
+        return func(*args)
+    wrapper.calls = 0
+    wrapper.__name__ = func.__name__
     return wrapper
 
 
@@ -47,7 +53,7 @@ def n_ary(func):
         if len(args) > 2:
             a = args[0]
             b = args[1:]
-            return func(a, func(*b))
+            return func(a, wrapper(*b))
         elif len(args) <= 1:
             return args
         else:
@@ -79,20 +85,20 @@ def trace():
 
 
 #@memo
-#@countcalls
+@countcalls
 @n_ary
 def foo(a, b):
     return a + b
 
 
-#@countcalls
+@countcalls
 #@memo
 @n_ary
 def bar(a, b):
     return a * b
 
 
-#@countcalls
+@countcalls
 #@trace("####")
 #@memo
 def fib(n):
